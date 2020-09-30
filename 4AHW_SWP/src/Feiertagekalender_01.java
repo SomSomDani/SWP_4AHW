@@ -1,36 +1,29 @@
 import java.io.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 public class Feiertagekalender_01 {
 	
-	private static int year;
-	private static List<LocalDate> feiertage;
-	private static LocalDate today;
-	public static LocalDate getRecordFromLine(String line, int year) {
-        List<LocalDate> values = new ArrayList<LocalDate>();
-        int month, day;
-        try (Scanner rowScanner = new Scanner(line)) {
-            rowScanner.useDelimiter("#");
-            while (rowScanner.hasNext()) {
-                month = rowScanner.nextInt();
-                day = rowScanner.nextInt();
-
-                values.add(LocalDate.of(year,month,day));
-            }
-        }
-        return values;
-    }
+	
 	public static void main(String[] args) throws IOException
 	{
 		BufferedReader stdin =
 			      new BufferedReader ( new InputStreamReader ( System.in ) );
 				// Berechnung der Ostersonntage
-			    System.out.print("Bitte Jahr eingeben: ");
+			    System.out.print("Bitte das Startjahr eingeben: ");
+			    //System.out.print("Bitte Anzahl der Jahre eingeben, wofür Feiertage berechnet werden sollten: ");
 			    String inData = stdin.readLine();
 			    int jahr = Integer.parseInt ( inData );
 			    
+			    int montag=0;
+				int dienstag=0;
+				int mittwoch=0;
+				int donnerstag= 0;
+				int freitag=0;
+				int samstag = 0;
+				int sonntag=0;
+				
 			    int a = jahr % 19;
 			    int b = jahr % 4;
 			    int c = jahr % 7;
@@ -122,32 +115,78 @@ public class Feiertagekalender_01 {
 			    {
 			    	monatFronleichnam = 6;
 			    }
-			    /*System.out.print("\nIm Jahr " + jahr + " ist der Ostersonntag am " + tagOs);
-			    System.out.println("." + monatOstern + ".");
-			    System.out.print("\nIm Jahr "+ jahr + " ist der Ostermontag am " + tagOm);
-			    System.out.println("." + monatOstern + ".");
-			    System.out.print("\nIm Jahr "+ jahr + " ist Christi Himmelfahrt am " + tagCH);
-			    System.out.println("." + monatCH + ".");
-			    System.out.print("\nIm Jahr "+ jahr + " ist Pfingstsonntag am " + tagPfSo);
-			    System.out.println("." + monatPfingstenSonntag + ".");
-			    System.out.print("\nIm Jahr "+ jahr + " ist Pfingstmontag am " + tagPfMo);
-			    System.out.println("." + monatPfingstenMontag + ".");
-			    System.out.print("\nIm Jahr "+ jahr + " ist Fromleichnam am " + tagFl);
-			    System.out.println("." + monatFronleichnam + ".");*/
+			    /*	System.out.print("\nIm Jahr " + jahr + " ist der Ostersonntag am " + tagOs);
+			    	System.out.println("." + monatOstern + ".");
+			    	System.out.print("\nIm Jahr "+ jahr + " ist der Ostermontag am " + tagOm);
+			    	System.out.println("." + monatOstern + ".");
+			    	System.out.print("\nIm Jahr "+ jahr + " ist Christi Himmelfahrt am " + tagCH);
+			    	System.out.println("." + monatCH + ".");
+			    	System.out.print("\nIm Jahr "+ jahr + " ist Pfingstsonntag am " + tagPfSo);
+			    	System.out.println("." + monatPfingstenSonntag + ".");
+			    	System.out.print("\nIm Jahr "+ jahr + " ist Pfingstmontag am " + tagPfMo);
+			    	System.out.println("." + monatPfingstenMontag + ".");
+			    	System.out.print("\nIm Jahr "+ jahr + " ist Fromleichnam am " + tagFl);
+			    	System.out.println("." + monatFronleichnam + ".");*/
 			   
-			    do {
-		            try (Scanner scanner = new Scanner(new File("C:\\Users\\Platzhalter\\Desktop\\Backup Externe Festplatte\\Daniel SWP\\4AHW_SWP\\Feiertag.csv"));) {
-		                while (scanner.hasNextLine()) {
-		                    feiertage.add(getRecordFromLine(scanner.nextLine(), year));
-		                }
-		            } catch (FileNotFoundException e) {
-		               e.printStackTrace();
-		            }
-		            year++;
-		        }while(year < today.getYear() + 10);
+			    ArrayList<LocalDate> freitage = new ArrayList<>();
+			    do
+			    {
+			    	try(Scanner scanner = new Scanner(new File("C:\\Users\\Platzhalter\\Desktop\\Backup Externe Festplatte\\Daniel SWP\\4AHW_Algorithm\\src\\FreiTage.csv")))
+			    	{
+			    		while(scanner.hasNextLine())
+			    		{
+			    			freitage.add(getRecordFromLine(scanner.nextLine(),jahr));
+			    		}
+			    	}
+			    	catch(FileNotFoundException e1)
+			    	{
+			    		e1.printStackTrace();
+			    	}
+			    	jahr ++;
+			    }
+			    while(jahr < jahr + 10);
+			    
+			    // Switch für die Tage hochzählen
+			    for(int i = 0; i<freitage.size();i++)
+				{
+			    	LocalDate date = freitage.get(i);
+			    	DayOfWeek dayS = date.getDayOfWeek();
+					switch(dayS)
+					{
+					case MONDAY: montag= (montag + 1) + (jahr * 2);
+					case TUESDAY: dienstag++;
+					case WEDNESDAY: mittwoch++;
+					case THURSDAY: donnerstag= (donnerstag + 1) + (jahr * 2);
+					case FRIDAY: freitag++;
+					case SATURDAY: samstag++;
+					case SUNDAY: sonntag= (sonntag +1) + (jahr * 2);
+					}
+				}
+			    System.out.println(montag);
+			    System.out.println(dienstag);
+			    System.out.println(mittwoch);
+			    System.out.println(donnerstag);
+			    System.out.println(freitag);
 			  }
+	
 	
 		//LocalDateTime local = LocalDateTime.parse("2020-01-01T12:39:10");
 		//DayOfWeek dayofweek = local.getDayOfWeek();
 		//System.out.println("Day of Week: " + dayofweek);
+	public static LocalDate getRecordFromLine(String line, int year)
+	{
+		LocalDate values = LocalDate.MIN;
+		int month, day;
+		try(Scanner rowScanner = new Scanner(line))
+		{
+			rowScanner.useDelimiter("#");
+			while(rowScanner.hasNextInt())
+			{
+				month=rowScanner.nextInt();
+				day = rowScanner.nextInt();
+				values = LocalDate.of(year,month,day);
+			}
+		}
+		return values;
 	}
+}
