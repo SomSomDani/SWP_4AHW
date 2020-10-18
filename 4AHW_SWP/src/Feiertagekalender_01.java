@@ -6,22 +6,36 @@ import java.util.List;
 import java.util.Scanner;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.chart.Axis;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.stage.Stage; 
+import javafx.stage.Stage;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
 public class Feiertagekalender_01 extends Application 
 {
-	static int monday=0;
-	static int tuesday=0;
-	static int wednesday=0;
-	static int thursday= 0;
-	static int friday=0;
+	static int rHmonday=0;
+	static int rHtuesday=0;
+	static int rHwednesday=0;
+	static int rHthursday= 0;
+	static int rHfriday=0;
+	static int rHsaturday = 0;
+	static int rHsunday=0;
+	
+	static int dynmonday = 0;
+	static int dynthursday= 0;
+	static int dynsunday =0;
+	
+	static int monday = 0;
+	static int tuesday = 0;
+	static int wednesday = 0;
+	static int thursday = 0;
+	static int friday = 0;
 	static int saturday = 0;
-	static int sunday=0;
+	static int sunday =0;
 	
 	static List<LocalDate> mondays = new ArrayList<>();
 	static List<LocalDate> tuesdays = new ArrayList<>();
@@ -30,16 +44,27 @@ public class Feiertagekalender_01 extends Application
 	static List<LocalDate> fridays = new ArrayList<>();
 	static List<LocalDate> saturdays = new ArrayList<>();
 	static List<LocalDate> sundays = new ArrayList<>();
+	
+	static List<LocalDate> rHmondays = new ArrayList<>();
+	static List<LocalDate> rHtuesdays = new ArrayList<>();
+	static List<LocalDate> rHwednesdays = new ArrayList<>();
+	static List<LocalDate> rHthursdays = new ArrayList<>();
+	static List<LocalDate> rHfridays = new ArrayList<>();
+	static List<LocalDate> rHsaturdays = new ArrayList<>();
+	static List<LocalDate> rHsundays = new ArrayList<>();
+	
+	static Scanner scanner = new Scanner(System.in);
+	
+    static int startyear;
+    static int endyear;
+    
 	public static void main(String[] args) throws IOException
 	{
-				Scanner scanner = new Scanner(System.in);
-			    System.out.println("Bitte das Startjahr eingeben: ");
-			    int startyear;
-			    startyear = scanner.nextInt();
-			    System.out.println("Bitte das Endjahr eingeben: ");
-			    int endyear;
-			    endyear = scanner.nextInt();
-			 
+		System.out.println("Bitte das Startjahr eingeben: ");
+		startyear = scanner.nextInt();
+		System.out.println("Bitte das Endjahr eingeben: ");
+		endyear = scanner.nextInt();
+				@SuppressWarnings("resource")
 				// Listen Feiertagen
 				List<LocalDate> dynamicHolidays = new ArrayList<>();   
 			    ArrayList<LocalDate> holidays = new ArrayList<>();
@@ -121,7 +146,7 @@ public class Feiertagekalender_01 extends Application
 				    	{
 				    		tagPfSo += 31;
 				    	}
-				    	monatPfingstenSonntag=6;
+				    	monatPfingstenSonntag=5;
 				    	dynamicHolidays.add(LocalDate.of(i,monatPfingstenSonntag,tagPfSo));
 				    }
 				    if (tagPfSo <= 31)
@@ -163,52 +188,82 @@ public class Feiertagekalender_01 extends Application
 
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.MONDAY)) {
 		                mondays.add(holidays.get(i));
-		                monday++;
+		                rHmondays.add(holidays.get(i));
+		                rHmonday++;
 		            }
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.TUESDAY)) {
 		            	tuesdays.add(holidays.get(i));
-		                tuesday++;
+		            	rHtuesdays.add(holidays.get(i));
+		                rHtuesday++;
 		            }
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.WEDNESDAY)) {
 		            	wednesdays.add(holidays.get(i));
-		            	wednesday++;
+		            	rHwednesdays.add(holidays.get(i));
+		            	rHwednesday++;
 		            }
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.THURSDAY)) {
 		            	thursdays.add(holidays.get(i));
-		                thursday++;
+		            	rHthursdays.add(holidays.get(i));
+		                rHthursday++;
 		            }
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.FRIDAY)) {
 		            	fridays.add(holidays.get(i));
-		                friday++;
+		            	rHfridays.add(holidays.get(i));
+		                rHfriday++;
 		            }
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
 		            	saturdays.add(holidays.get(i));
-		                saturday++;
+		            	rHsaturdays.add(holidays.get(i));
+		                rHsaturday++;
 		            }
 		            if (holidays.get(i).getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
 		            	sundays.add(holidays.get(i));
-		                sunday++;
+		            	rHsundays.add(holidays.get(i));
+		                rHsunday++;
 		            }
 		        }
 			    for (int i = 0; i < dynamicHolidays.size(); i++) {
 
 		            if (dynamicHolidays.get(i).getDayOfWeek().equals(DayOfWeek.MONDAY)) {
 		                mondays.add(dynamicHolidays.get(i));
-		                monday++;
+		                dynmonday++;
 		            }
 		            if (dynamicHolidays.get(i).getDayOfWeek().equals(DayOfWeek.THURSDAY)) {
 		            	thursdays.add(dynamicHolidays.get(i));
-		                thursday++;
+		                dynthursday++;
 		            }
 		            if (dynamicHolidays.get(i).getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
 		            	sundays.add(dynamicHolidays.get(i));
-		                sunday++;
+		                dynsunday++;
 		            }
 		        }
+			    monday = rHmonday +dynmonday;
+			    tuesday = rHtuesday;
+			    wednesday = rHwednesday;
+			    thursday = rHthursday + dynthursday;
+			    friday= rHfriday;
+			    saturday= rHsaturday;
+			    sunday = rHsunday + dynsunday;
+			    
 			    // Feiertage ausgeben
 		        holidaysOutput(monday, tuesday, wednesday, thursday, friday, saturday, sunday, mondays, tuesdays,
 		        				wednesdays, thursdays, fridays, saturdays, sundays);
 		        launch(args);
+		        String url="jdbc;ysql://localhost:3306/demo";
+		        String user="Admin";
+		        String password ="MySQL Root-Password";
+		        try
+		        {
+		        	Connection myConn = DriverManager.getConnection(url,user,password);
+		        	Statement myStmt = myConn.createStatement();
+		        	String sql = "INSERT INTO feiertage" + "(id,feiertage,tag,monat,jahr)" + "VALUES (1,'Donnerstage','25','12','20201'";
+		        	myStmt.executeUpdate(sql);
+		        	System.out.println("Insert complete");
+		        }
+		        catch(Exception exc)
+		        {
+		        	exc.printStackTrace();
+		        }
 	}
 	public static void holidaysGenerate(List<LocalDate> holidays, int startyear, int endyear) {
         for (int i = startyear; i <= startyear + endyear - startyear; i++) {
@@ -226,16 +281,26 @@ public class Feiertagekalender_01 extends Application
         }
     }
 	
-	 public static void holidaysOutput(int mo, int di, int mi, int don, int fr, int sa, int so, List<LocalDate> Montage,
-             List<LocalDate> Dienstage, List<LocalDate> Mittwoche, List<LocalDate> Donnerstage,
-             List<LocalDate> Freitage, List<LocalDate> Samstage, List<LocalDate> Sonntage) {
-				System.out.println("Montage: " + mo + " " + Montage);
-				System.out.println("Dienstage: " + di + " " + Dienstage);
-				System.out.println("Mittwoche: " + mi + " " + Mittwoche);
-				System.out.println("Donnerstage: " + don + " " + Donnerstage);
-				System.out.println("Freitage: " + fr + " " + Freitage);
-				System.out.println("Samstage: " + sa + " " + Samstage);
-				System.out.println("Sonntage: " + so + " " + Sonntage);
+	 public static void holidaysOutput(int mo, int di, int mi, int don, int fr, int sa, int so, List<LocalDate> mondays,
+             List<LocalDate> tuesdays, List<LocalDate> wednesdays, List<LocalDate> thursdays,
+             List<LocalDate> fridays, List<LocalDate> saturdays, List<LocalDate> sundays) {
+				System.out.println("Mondays: " + mo + " " + mondays);
+				System.out.println("Tuesdays: " + di + " " + tuesdays);
+				System.out.println("Wednesdays: " + mi + " " + wednesdays);
+				System.out.println("Thursdays: " + don + " " + thursdays);
+				System.out.println("Fridays: " + fr + " " + fridays);
+				System.out.println("Saturdays: " + sa + " " + saturdays);
+				System.out.println("Sundays: " + so + " " + sundays);
+				
+				System.out.println("\n");
+				
+				System.out.println("Mondays: " + rHmonday + " " + rHmondays);
+				System.out.println("Tuesdays: " + rHtuesday + " " + rHtuesdays );
+				System.out.println("Wednesdays: " + rHwednesday + " " + rHwednesdays);
+				System.out.println("Thursdays: " + rHthursday + " " + rHthursdays);
+				System.out.println("Fridays: " + rHfriday + " " + rHfridays);
+				System.out.println("Saturdays: " + rHsaturday + " " + rHsaturdays);
+				System.out.println("Sundays: " + rHsunday + " " + rHsundays);
 	 }
 	 
 	 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -243,17 +308,17 @@ public class Feiertagekalender_01 extends Application
 	 {
 		 try
 		 {
-			 final CategoryAxis xAxis = new CategoryAxis();
-			 final NumberAxis yAxis = new NumberAxis();
-			 final BarChart<String,Number > barChart = new BarChart<String,Number>(xAxis,yAxis);
+			 	final CategoryAxis xAxis = new CategoryAxis();
+			 	final NumberAxis yAxis = new NumberAxis();
+			 	final BarChart<String,Number > barChart = new BarChart<String,Number>(xAxis,yAxis);
 			 
-			 barChart.setTitle("Feiertage in den Jahren 2021 bis 2031 ");
-			 xAxis.setLabel("Wochentage");
-			 yAxis.setLabel("Anzahl der Feiertage");
+			 	barChart.setTitle("Holidays in the year "+startyear+" until "+ endyear);
+			 	xAxis.setLabel("weekdays");
+			 	yAxis.setLabel("number of holidays");
 			 
 			 	XYChart.Series series1 = new XYChart.Series();
-		        series1.setName("2021-2031");
-		        series1.getData().add(new XYChart.Data("Montage", monday));
+		        series1.setName("with dynamic holidays");
+		        series1.getData().add(new XYChart.Data("Mondays", monday));
 		        series1.getData().add(new XYChart.Data("Tuesdays", tuesday));
 		        series1.getData().add(new XYChart.Data("Wednesdays", wednesday));
 		        series1.getData().add(new XYChart.Data("Thursdays", thursday));
@@ -261,11 +326,24 @@ public class Feiertagekalender_01 extends Application
 		        series1.getData().add(new XYChart.Data("Saturdays", saturday));
 		        series1.getData().add(new XYChart.Data("Sundays", sunday));
 
-		        barChart.getData().addAll(series1);
+		        
+		         XYChart.Series series2 = new XYChart.Series();
+		         series2.setName("only non-dynamic holidays");
+		         series2.getData().add(new XYChart.Data("Mondays",rHmonday));
+		         series2.getData().add(new XYChart.Data("Tuesdays",rHtuesday));
+		         series2.getData().add(new XYChart.Data("Wednesdays",rHwednesday));
+		         series2.getData().add(new XYChart.Data("Thursdays",rHthursday));
+		         series2.getData().add(new XYChart.Data("Fridays",rHfriday));
+		         series2.getData().add(new XYChart.Data("Saturdays",rHsaturday));
+		         series2.getData().add(new XYChart.Data("Sundays",rHsunday));
+		         	        
+		        barChart.getData().addAll(series1,series2);
 		        Scene scene = new Scene(barChart, 640, 480);
 				primaryStage.setScene(scene);
 				primaryStage.show();
-			} catch(Exception e) {
+			} 
+		 	catch(Exception e) 
+		 	{
 				e.printStackTrace();
 			}
 		 }
