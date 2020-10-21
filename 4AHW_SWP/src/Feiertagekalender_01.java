@@ -411,39 +411,39 @@ public class Feiertagekalender_01 extends Application
 			 e.printStackTrace();
 		 }
 		 try {
-	            System.out.println("* Verbindung aufbauen");
+	            System.out.println("* buildup connection");
 	            conn = DriverManager.getConnection("jdbc:mysql://"+hostname+"/"+dbname+"?user="+user+"&password="+password+"&serverTimezone=UTC");
 	            Statement myStat = conn.createStatement();
 	            ResultSet reSe=myStat.executeQuery("Select * from kalender");
-	            System.out.println("Zeit                                 Montag      Dienstag        Mittwoch        Donnerstag      Freitag     Samstag" +
-	                    "       Sonntag         Startjahr       Endjahr");
+	            System.out.println("time                                 monday      tuesday        wednesday        thursday      friday     saturday" +
+	                    "       sunday         startyear       endyear");
 	            while(reSe.next()){
-	                String zeit = reSe.getString("Datum");
-	                String Montag = reSe.getString("Montag");
-	                String Dienstag = reSe.getString("Dienstag");
-	                String Mittwoch = reSe.getString("Mittwoch");
-	                String Donnerstag = reSe.getString("Donnerstag");
-	                String Freitag = reSe.getString("Freitag");
-	                String Samstag = reSe.getString("Samstag");
-	                String Sonntag = reSe.getString("Sonntag");
-	                String startjahr =reSe.getString("Startjahr");
-	                String endjahr =reSe.getString("Endjahr");
+	                String time = reSe.getString("Date");
+	                String Monday = reSe.getString("Monday");
+	                String Tuesday = reSe.getString("Tuesday");
+	                String Wednesday = reSe.getString("Wednesday");
+	                String Thursday = reSe.getString("Thursday");
+	                String Friday= reSe.getString("Friday");
+	                String Saturday = reSe.getString("Saturday");
+	                String Sunday= reSe.getString("Sunday");
+	                String startyear =reSe.getString("Startyear");
+	                String endyear =reSe.getString("Endyear");
 
 
-	                System.out.printf("%1s",zeit);
-	                System.out.printf("%20s", Montag);
-	                System.out.printf("%11s", Dienstag);
-	                System.out.printf("%16s", Mittwoch);
-	                System.out.printf("%17s", Donnerstag);
-	                System.out.printf("%15s", Freitag);
-	                System.out.printf("%12s", Samstag);
-	                System.out.printf("%14s", Sonntag);
-	                System.out.printf("%19s", startjahr);
-	                System.out.printf("%16s", endjahr);
+	                System.out.printf("%1s",time);
+	                System.out.printf("%20s", Monday);
+	                System.out.printf("%11s", Tuesday);
+	                System.out.printf("%16s", Wednesday);
+	                System.out.printf("%17s", Thursday);
+	                System.out.printf("%15s", Friday);
+	                System.out.printf("%12s", Saturday);
+	                System.out.printf("%14s", Sunday);
+	                System.out.printf("%19s", startyear);
+	                System.out.printf("%16s", endyear);
 	                System.out.println();
 	            }
 
-	            System.out.println("* Datenbank-Verbindung beenden");
+	            System.out.println("* ending Database connection");
 	            conn.close();
 	        }
 	        catch (SQLException sqle) {
