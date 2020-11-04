@@ -395,8 +395,8 @@ public class Feiertagekalender_01 extends Application
 		 @SuppressWarnings("unused")
 		final String port = "3306";
 		 final String dbname ="Feiertage";
-		 final String user = "java";
-		 final String password = "MySQL Root-Password";
+		 final String user = "xxxx";
+		 final String password = "xxxxxx";
 		 
 		 Connection conn;
 		 
