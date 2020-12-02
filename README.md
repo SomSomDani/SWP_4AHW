@@ -13,6 +13,10 @@ Bei JavaFx werden die Daten je nach Feiertag, ob es ein dynamischer oder in fest
 Ausgabe JavaFx:
 
 
+
+
+
+
 Aufgabe des zweiten Programmes ist es aus einer API einen Börsenkurs zu entnehmen und diesen mit einer Datenbank (mySQL) zuverbinden, bei diesem lese ich die Werte als JSONObject von der API ein.
 
 Zum Installieren des Programmes braucht man die Libraries:
