@@ -13,6 +13,18 @@ Bei JavaFx werden die Daten je nach Feiertag, ob es ein dynamischer oder in fest
 Ausgabe JavaFx:
 
 
+Aufgabe des zweiten Programmes ist es aus einer API einen Börsenkurs zu entnehmen und diesen mit einer Datenbank (mySQL) zuverbinden, bei diesem lese ich die Werte als JSONObject von der API ein.
+
+Zum Installieren des Programmes braucht man die Libraries:
+IOUtils
+JSONObject
+MySQL Connector für Datenbanken
+
+Ausgeführt wird das Programm in dem man das Unternehmen nimmt (IBM,TESLA) mit den jeweiligen Abkürzungen, diese werden eingelesen und werden durch den jeweiligen Key und der Basis URL einen API Link ergeben, welcher die Daten über die Aktien dieses Unternehmen darstellt. Diese Daten werden in eine Datenbank MySQL gespeichert und werden nachträglich wieder ausgegeben.
+
+
+
+
 
 
 
