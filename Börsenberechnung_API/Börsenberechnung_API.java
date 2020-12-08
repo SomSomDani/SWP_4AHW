@@ -110,10 +110,17 @@ public class Börsenberechnung_API {
 	//Database
 	public static Connection connect()
 	{
+		 final String hostname ="localhost";
+		 @SuppressWarnings("unused")
+		 final String port = "3306";
+		 final String dbname ="Feiertage";
+		 final String user = "java";
+		 final String password = "MySQL Root-Password";
+		 
 		Connection conn = null;
 		try
 		{
-			String url="jdbc:mysql:" + path + filename;
+			String url="jdbc:mysql://"+hostname+"/"+dbname+"?user="+user+"&password="+password+"&serverTimezone=UTC" + path + filename;
 			conn = DriverManager.getConnection(url);
 			System.out.println("Connection to MySQL has been established");
 		}
