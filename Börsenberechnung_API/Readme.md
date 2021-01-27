@@ -1,4 +1,5 @@
 Was soll dieses Programm nützliches machen?
+
 Der Nutzen diese Programmes dient dazu aus einer API die Werte einer bestimmten Aktie aus Amerika wie IBM, Apple, Amazon, ... einzulesen via dem Firmenkürzel (AAPL, TSLA, ADM, ...). Aus diesen Aktienwerten wird ein gleitender Durchschnitt von 200 berechnet, welcher und dann die Information geben kann wie die derzeitige wirtschafliche Struktur dieses Unternehmen besitzt. 
 
 Die API Daten werden zu allerest durch ein JSONObjekt in die IDE eingelesen, vor dort aus stellen wir durch einen MySQL-Driver eine Verbindung mit dem MySQL-Server fest. Durch die IDE werden dann je nach Aktie eine Tabelle erstellt, welche wir dann mit den sogenannten Close-Werten (Werte der Aktie) befüllen, zugleich berechnen wir den gleitenden Durchschnitt von 200, dieser wird in einer separaten Datenbank abgespeichert.
