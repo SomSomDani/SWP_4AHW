@@ -19,17 +19,19 @@ import javafx.application.Application;
 
 public class API_Stock extends Application{
     static Scanner reader = new Scanner(System.in);
-    static ArrayList<Double> closeValue = new ArrayList<>();
-    static ArrayList<Double> movingAverage = new ArrayList<>();
-    static ArrayList<LocalDate> data = new ArrayList<>();
 
-    static ArrayList<Double> avgDB = new ArrayList<>();
+    static ArrayList<Double> closeValue = new ArrayList<>();                // ArrayList for date, movingAverage and closeValue
+    static ArrayList<Double> movingAverage = new ArrayList<>();
+    static ArrayList<LocalDate> date = new ArrayList<>();
+
+    static ArrayList<Double> avgDB = new ArrayList<>();                     // ArrayList for the database values
     static ArrayList<Double> closeDB = new ArrayList<>();
     static ArrayList<String> dateDB = new ArrayList<>();
 
     static String url, Stock;
     static int chosenDays;
     static double min, max;
+    static int daysforAverage;
 
     public static void main (String args[]) throws IOException, JSONException {
         API_Stock stock = new API_Stock();
@@ -45,20 +47,25 @@ public class API_Stock extends Application{
         stock.selectAll();
         Application.launch(args);
     }
+
     static void inputUser() {
-        System.out.println("Stock (in the US)(TSLA,IBM,AMZN,AAPL,...): ");
+        System.out.println("Stock (in the US)(TSLA,IBM,AMZN,AAPL,...): ");                  // stock which should be used
         Stock = reader.next();
-        System.out.println("How many days should the graphic use to draw the chart:");
-        chosenDays = reader.nextInt();
+        // System.out.println("How many days should the graphic use to draw the chart:");    // days for the graphic
+        // chosenDays = reader.nextInt();
+        // System.out.println("Days for Average-Value: ");                                     // days for calculate
+        // daysforAverage = reader.nextInt();
     }
+
     static void readURL() {
-        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+ Stock + "&outputsize=full&apikey=ZF7R0A6T754HDZGA"; //alphavantage-schüssel einfügen
+        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+ Stock + "&outputsize=full&apikey=ZF7R0A6T754HDZGA"; // API-Key
     }
+
     static void getValue(String URL) throws JSONException, IOException {
         JSONObject json = new JSONObject(IOUtils.toString(new URL(url), Charset.forName("UTF-8")));
         json = json.getJSONObject("Time Series (Daily)");
-        for(int i = 0; i < chosenDays/*json.names().length()*/; i++) {
-            data.add(LocalDate.parse((CharSequence) json.names().get(i)));
+        for(int i = 0; i < /*chosenDays*/json.names().length(); i++) {
+            date.add(LocalDate.parse((CharSequence) json.names().get(i)));
             closeValue.add(json.getJSONObject(LocalDate.parse((CharSequence) json.names().get(i)).toString()).getDouble("4. close"));
         }
 
@@ -82,6 +89,8 @@ public class API_Stock extends Application{
             }
         }
     }
+
+    // building connection
     private Connection connection() {
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
         Connection conn = null;
@@ -92,6 +101,8 @@ public class API_Stock extends Application{
         }
         return conn;
     }
+
+    // creating table and defining key arguments
     public static void createNewTable() {
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
         String drop = "Drop Table if exists " + Stock + ";";
@@ -111,6 +122,8 @@ public class API_Stock extends Application{
             System.out.println(e.getMessage());
         }
     }
+
+    // insert close values into database
     public void insert()
     {
         String sql = "INSERT INTO " + Stock + "(datum, close) VALUES('?', ?);";
@@ -118,13 +131,15 @@ public class API_Stock extends Application{
             Connection conn = this.connection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             for (int i = 1; i < closeValue.size(); i++) {
-                sql = "INSERT INTO " + Stock + "(datum, close) VALUES(\""+data.get(i).toString()+"\","+ closeValue.get(i)+");";
+                sql = "INSERT INTO " + Stock + "(datum, close) VALUES(\""+ date.get(i).toString()+"\","+ closeValue.get(i)+");";
                 pstmt.execute(sql);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
+
+    // calculate average
     public void Average() {
         ResultSet rs = null;
         Connection conn = null;
@@ -134,8 +149,8 @@ public class API_Stock extends Application{
             conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             stmt = conn.createStatement();
             String sql;
-            for(LocalDate avg : data) {
-                sql = "Select avg(close) from " + Stock + " where (datum < \'" + avg.toString() + "\') and (datum >= \'" + avg.minusDays(200).toString() + "\') order by datum desc;";
+            for(LocalDate avg : date) {
+                sql = "Select avg(close) from " + Stock + " where (datum < \'" + avg.toString() + "\') and (datum >= \'" + avg.minusDays(200/*daysforAverage*/).toString() + "\') order by datum desc;";
                 rs = stmt.executeQuery(sql);
                 while (rs.next())
                 {
@@ -149,19 +164,23 @@ public class API_Stock extends Application{
             System.out.println(e.getMessage());
         }
     }
+
+    // insert the average close value into the second table
     public void insertAVG() {
         String sqlAVG = "INSERT INTO "+ Stock +"avg (datum, gleitenderDurchschnitt) VALUES(?, ?)";
         try{
             Connection conn = this.connection();
             PreparedStatement pstmt = conn.prepareStatement(sqlAVG);
             for (int i = 0; i < movingAverage.size(); i++) {
-                sqlAVG = "INSERT INTO "+ Stock +"avg (datum, gleitenderDurchschnitt) VALUES(\""+data.get(i).toString()+"\","+ movingAverage.get(i)+");";
+                sqlAVG = "INSERT INTO "+ Stock +"avg (datum, gleitenderDurchschnitt) VALUES(\""+ date.get(i).toString()+"\","+ movingAverage.get(i)+");";
                 pstmt.execute(sqlAVG);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
+
+    // calculate minimum and maximum of the close value
     public void MinAndMax()
     {
         String sqlmax = "select max(close) from "+ Stock + ";";
@@ -187,6 +206,8 @@ public class API_Stock extends Application{
             System.out.println(e.getMessage());
         }
     }
+
+    // selecting all values from database
     public void selectAll() {
         String sql = "SELECT * FROM "+ Stock +" order by datum;";
         String sqlAVG = "SELECT * FROM "+ Stock +"AVG order by datum;";
@@ -228,38 +249,42 @@ public class API_Stock extends Application{
             xAxis.setLabel("date");
             yAxis.setLabel("close-value");
             final LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
-            lineChart.setTitle("stock-price");
-            XYChart.Series<String, Number> tatsaechlich = new XYChart.Series();
-            tatsaechlich.setName("close-value");
-            for (int i = (closeValue.size() == 10) ? closeValue.size()-10 : closeValue.size() - 11; i < closeValue.size() -1; i++) {
-                tatsaechlich.getData().add(new XYChart.Data(dateDB.get(i), closeDB.get(i)));
-            }
-            /*for (int i = 0; i< closeWerte.size() - 1; i++)
-            {
-                tatsaechlich.getData().add(new XYChart.Data(dateDB.get(i), closeDB.get(i)));
+            lineChart.setTitle("stock-price "+ Stock);
+            XYChart.Series<String, Number> closeStat = new XYChart.Series();
+            closeStat.setName("close-value");
+            /*for (int i = (closeValue.size() == 10) ? closeValue.size()-10 : closeValue.size() - 11; i < closeValue.size() -1; i++) {
+                closeStat.getData().add(new XYChart.Data(dateDB.get(i), closeDB.get(i)));
             }*/
-            XYChart.Series<String, Number> durchschnitt = new XYChart.Series();
-            durchschnitt.setName("moving average");
-            for (int i = (movingAverage.size() == 10) ? movingAverage.size()-10 : movingAverage.size() - 11; i < movingAverage.size()-1; i++) {
-                durchschnitt.getData().add(new XYChart.Data(dateDB.get(i), avgDB.get(i)));
-            }
-            /*for (int i = 1; i< gleitenderDurchschnitt.size() - 1; i++)
+            for (int i = 0; i< closeValue.size() - 1; i++)
             {
-                durchschnitt.getData().add(new XYChart.Data(dateDB.get(i), avgDB.get(i)));
+                closeStat.getData().add(new XYChart.Data(dateDB.get(i), closeDB.get(i)));
+            }
+
+            XYChart.Series<String, Number> averageStat = new XYChart.Series();
+            averageStat.setName("moving average");
+            /*for (int i = (movingAverage.size() == 10) ? movingAverage.size()-10 : movingAverage.size() - 11; i < movingAverage.size()-1; i++) {
+                averageStat.getData().add(new XYChart.Data(dateDB.get(i), avgDB.get(i)));
             }*/
+            for (int i = 1; i< movingAverage.size() - 1; i++)
+            {
+                averageStat.getData().add(new XYChart.Data(dateDB.get(i), avgDB.get(i)));
+            }
+
+            // Background-Color for graph
             if(closeValue.get(closeValue.size()-1) > movingAverage.get(movingAverage.size()-1))
             {
                 lineChart.lookup(".chart-plot-background").setStyle("-fx-background-color:transparent;");
-                lineChart.setStyle("-fx-background-color:#0ef898;");
+                lineChart.setStyle("-fx-background-color:#00e600;");
             }
             else
             {
                 lineChart.lookup(".chart-plot-background").setStyle("-fx-background-color:transparent;");
-                lineChart.setStyle("-fx-background-color:#fa6f50;");
+                lineChart.setStyle("-fx-background-color:#ff6666;");
             }
+
             Scene scene = new Scene(lineChart, 1000, 600);
-            lineChart.getData().add(tatsaechlich);
-            lineChart.getData().add(durchschnitt);
+            lineChart.getData().add(closeStat);
+            lineChart.getData().add(averageStat);
 
             lineChart.setCreateSymbols(false);
             primaryStage.setScene(scene);
