@@ -58,7 +58,7 @@ public class API_Stock extends Application{
     }
 
     static void readURL() {
-        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+ Stock + "&outputsize=full&apikey=ZF7R0A6T754HDZGA"; // API-Key
+        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+ Stock + "&outputsize=full&apikey=******************"; // API-Key
     }
 
     static void getValue(String URL) throws JSONException, IOException {
