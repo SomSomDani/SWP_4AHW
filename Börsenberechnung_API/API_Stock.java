@@ -75,7 +75,7 @@ public class API_Stock extends Application{
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-            conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
+            conn = DriverManager.getConnection(url, "root", "****************");
             System.out.println("Connection to MySQL has been established.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -95,7 +95,7 @@ public class API_Stock extends Application{
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url,"root", "Destiny@hi!.com");
+            conn = DriverManager.getConnection(url,"root", "****************");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -146,7 +146,7 @@ public class API_Stock extends Application{
         Statement stmt = null;
         try {
             String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-            conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
+            conn = DriverManager.getConnection(url, "root", "****************");
             stmt = conn.createStatement();
             String sql;
             for(LocalDate avg : date) {
