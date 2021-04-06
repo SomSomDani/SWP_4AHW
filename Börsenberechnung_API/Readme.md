@@ -12,7 +12,8 @@ Was braucht man um das Programm auszuführen?
 2. JsonObject, damit man die Daten aus der Daten entnehmen kann, im meinem Fall habe ich es über Maven gemacht mit: org.json:json:20151123
 3. Wir brauchen einen MySQL-Driver der als Connector zwischen dem Programm und der Datenbank fungiert, diesen kann man sich über die MySQL-Seiter herunterladen: mysql-connector-java-8.0.23 abhängig von der Version.
 4. Commons.IO über Maven: commons-io:commons-io:2.8.0
-5. Als allerletztes kommt man die letzte Library, welche man benötigt nähmlich JavaFX, diese kann man über die JavaFx Seite Downloaden oder über Maven von der IDE benutzen. Im meinem Fall benutze ich die .jar Datei von der JavaFx Seite: openjfx-15.0.1_windows-x64_bin-sdk
+5. Als allerletztes kommt man die letzte Library, welche man benötigt nähmlich XYChart, xchart-3.8.0 welches in einem Zip-Ordner im Repository sich befindet.
 
 Nachdem alle Libraries hinzugefügt sind und man den Key besitzt kann man das Programm ausführen. Man muss nur das MySQL-Passwort und den User ändern.
-Nun können Sie das API auslesen, berechnen und ausgeben lassen.
+Nun können Sie das API auslesen, berechnen und ausgeben lassen. Die Graphen werden die gewünschte Aktie mit korregiertem Close Werten ausgeben.
+
