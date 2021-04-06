@@ -99,7 +99,7 @@ public class API_Stock /*extends Application*/{
         return file.exists();
     }
     static void readURL() {
-        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol="+ stock + "&outputsize=full&apikey=ZF7R0A6T754HDZGA"; // API-Key
+        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol="+ stock + "&outputsize=full&apikey=****************"; // API-Key
     }
 
     static void getValue(String URL) throws JSONException, IOException {
@@ -117,7 +117,7 @@ public class API_Stock /*extends Application*/{
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-            conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
+            conn = DriverManager.getConnection(url, "root", "password");
             System.out.println("Connection to MySQL has been established.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -137,7 +137,7 @@ public class API_Stock /*extends Application*/{
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url,"root", "Destiny@hi!.com");
+            conn = DriverManager.getConnection(url,"root", "password");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -252,7 +252,7 @@ public class API_Stock /*extends Application*/{
         Statement stmt = null;
         try {
             String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-            conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
+            Connection conn = this.connection();
             stmt = conn.createStatement();
             String sql;
             for(LocalDate avg : date) {
