@@ -1,11 +1,4 @@
 package sample;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.image.WritableImage;
-import javafx.stage.Stage;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -25,11 +18,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 
-import javafx.application.Application;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.markers.SeriesMarkers;
-
-import javax.imageio.ImageIO;
 
 public class API_Stock /*extends Application*/{
 
@@ -45,14 +35,25 @@ public class API_Stock /*extends Application*/{
     static ArrayList<String> dateDB = new ArrayList<>();
 
     static ArrayList<String> stocks = new ArrayList<String>();
+    static ArrayList<LocalDate> dateTradeList = new ArrayList<LocalDate>();
+    static ArrayList<Double> closeTradeList = new ArrayList<Double>();
+    static ArrayList<Double> averageTradeList = new ArrayList<Double>();
 
     static String url, stock;
     static int chosenDays;
     static double min, max;
     static int daysforAverage;
+    static LocalDate dateTrade;
+    static int startKapital;
+    static LocalDate current = LocalDate.now();
+    static Scanner scanner = new Scanner(System.in);
 
     public static void main (String args[]) throws IOException, JSONException {
         API_Stock stockClass = new API_Stock();
+        System.out.println("Geben Sie das Startdatum ein: (Jahr, Monat, Tag)");
+        dateTrade = LocalDate.parse(scanner.next());
+        System.out.println("Geben Sie das Startkapital ein: ");
+        startKapital = scanner.nextInt();
         stockClass.readFile();
         for(int i = 0; i<stocks.size();i++) {
             stock = stocks.get(i);
@@ -68,6 +69,8 @@ public class API_Stock /*extends Application*/{
                 stockClass.update();
                 stockClass.Average();
                 stockClass.insertAVG();
+                stockClass.insertStartTrade();
+                stockClass.fillDateTradeList();
                 stockClass.MinAndMax();
                 stockClass.ListNull();
                 stockClass.selectAll();
@@ -99,7 +102,7 @@ public class API_Stock /*extends Application*/{
         return file.exists();
     }
     static void readURL() {
-        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol="+ stock + "&outputsize=full&apikey=****************"; // API-Key
+        url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol="+ stock + "&outputsize=full&apikey=ZF7R0A6T754HDZGA"; // API-Key
     }
 
     static void getValue(String URL) throws JSONException, IOException {
@@ -117,7 +120,7 @@ public class API_Stock /*extends Application*/{
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-            conn = DriverManager.getConnection(url, "root", "password");
+            conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             System.out.println("Connection to MySQL has been established.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -137,7 +140,7 @@ public class API_Stock /*extends Application*/{
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url,"root", "password");
+            conn = DriverManager.getConnection(url,"root", "Destiny@hi!.com");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -147,6 +150,7 @@ public class API_Stock /*extends Application*/{
     // creating table and defining key arguments
     public static void createNewTable() {
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
+        String use = "use api;";
         String drop = "Drop Table if exists " + stock + ";";
         String sql = "CREATE table if not exists "+ stock +" (\n"
                 + "datum Date primary key unique," + "close double);";
@@ -156,15 +160,22 @@ public class API_Stock /*extends Application*/{
         String dropsplit = "drop table if exists " + stock + "corrected ;";
         String splitsql = "Create table if not exists " + stock +"corrected (\n"
                 + "datum Date primary key unique," + "close double," + " splitCoefficient double)";
+        String droptrade = "drop table if exists " + stock + "trade ;";
+        String trade = "create table if not exists " + stock + "trade (\n"           // select flag from stocktrade order by date desc limit(1);
+                + "datum Date primary key unique, " + "ticker varchar(10), " + "flag char(1)," + " number int, " + "depot int)";
         try{
             Connection conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             Statement stmt = conn.createStatement();
+            stmt.execute(use);
             stmt.execute(drop);
             stmt.execute(sql);
             stmt.execute(dropavg);
             stmt.execute(avgsql);
             stmt.execute(dropsplit);
             stmt.execute(splitsql);
+            stmt.execute(droptrade);
+            stmt.execute(trade);
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -252,7 +263,7 @@ public class API_Stock /*extends Application*/{
         Statement stmt = null;
         try {
             String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-            Connection conn = this.connection();
+            conn = DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             stmt = conn.createStatement();
             String sql;
             for(LocalDate avg : date) {
@@ -273,7 +284,7 @@ public class API_Stock /*extends Application*/{
 
     // insert the average close value into the second table
     public void insertAVG() {
-        String sqlAVG = "INSERT INTO "+ stock +"avg (datum, gleitenderDurchschnitt) VALUES(?, ?)";
+        String sqlAVG = "INSERT INTO "+ stock +"avg (datum, gleitenderDurchschnitt) VALUES('?', ?)";
         try{
             Connection conn = this.connection();
             PreparedStatement pstmt = conn.prepareStatement(sqlAVG);
@@ -353,6 +364,8 @@ public class API_Stock /*extends Application*/{
         XYChart chart = new XYChartBuilder().title(stock).width(1000).height(600).build();
         chart.setYAxisTitle("Close_Values");
         chart.setXAxisTitle("Dates");
+        chart.getStyler().setYAxisMin(min);
+        chart.getStyler().setYAxisMax(max);
         if(closeValue.get(closeValue.size()-1) > movingAverage.get(movingAverage.size()-1))
         {
             chart.getStyler().setPlotBackgroundColor(Color.green);
@@ -445,4 +458,91 @@ public class API_Stock /*extends Application*/{
             e.printStackTrace();
         }
     }*/
+    public void insertStartTrade()
+    {
+        String sql = "insert into " + stock+ "trade (datum, ticker, flag, number, depot) values ('?',?,?,?,?);";
+        try
+        {
+            Connection conn = this.connection();
+            PreparedStatement ptsmt = conn.prepareStatement(sql);
+            sql = "insert into " + stock + "trade (datum, ticker, flag, number, depot) values (\'" +dateTrade.minusDays(1)+ "\','" + stock + "',0,0," + startKapital + ");";
+            ptsmt.execute(sql);
+        }
+        catch(SQLException e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void fillDateTradeList()
+    {
+        String sql = "select datum,close from "+stock+" where datum between \'"+dateTrade+"\' AND \'"+current.minusDays(1)+"\' ;";
+        String sqlAvg = "select gleitenderDurchschnitt from "+stock+"avg where datum between \'"+dateTrade+"\' AND \'"+current.minusDays(1)+"\';";
+        try
+        {
+            dateTradeList = new ArrayList<LocalDate>();
+            closeTradeList = new ArrayList<Double>();
+            averageTradeList = new ArrayList<>();
+            Connection conn = this.connection();
+            Statement smt = conn.createStatement();
+            Statement stmtAvg = conn.createStatement();
+            ResultSet rs = smt.executeQuery(sql);
+            ResultSet rsA = stmtAvg.executeQuery(sqlAvg);
+            while(rs.next() && rsA.next())
+            {
+                rs.getString("datum");
+                rs.getDouble("close");
+                rsA.getDouble("gleitenderDurchschnitt");
+                dateTradeList.add(LocalDate.parse(rs.getString("datum")));
+                closeTradeList.add(rs.getDouble("close"));
+                averageTradeList.add(rsA.getDouble("gleitenderDurchschnitt"));
+            }
+        }
+        catch(SQLException e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void trading200()
+    {
+        for(int i = 0; i<dateTradeList.size();i++)
+        {
+            String sqlFlag = "select * from " + stock + " order by datum desc limit 1";
+            try
+            {
+                String flag = "";
+                int anzahl = 0;
+                int depot = 0;
+                int rest = 0;
+                Connection conn = this.connection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sqlFlag);
+                if(rs.next()) {
+                    flag = rs.toString();
+                    anzahl = rs.getInt("number");
+                    depot = rs.getInt("depot");
+                }
+                if(flag.equals("0"))
+                {
+                    if(!dateTradeList.get(i).getDayOfWeek().equals("SAMSTAG") || (!dateTradeList.get(i).getDayOfWeek().equals("SONNTAG")))
+                    {
+                            if(closeTradeList.get(i) < averageTradeList.get(i))
+                            {
+                                anzahl = (int) (depot / closeTradeList.get(i));
+                                rest = (int) (anzahl * closeTradeList.get(i));
+                                depot = (depot - rest);
+                                flag = "1";
+                            }
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            catch(SQLException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+        }
+    }
 }
