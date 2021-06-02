@@ -39,7 +39,6 @@ public class API_Stock /*extends Application*/ {
     static ArrayList<LocalDate> dateTradeList = new ArrayList<LocalDate>();
     static ArrayList<Double> closeTradeList = new ArrayList<Double>();
     static ArrayList<Double> averageTradeList = new ArrayList<Double>();
-    static ArrayList<Double> splitTradeList = new ArrayList<Double>();
 
     static String url, stock;
     static int chosenDays;
@@ -47,19 +46,21 @@ public class API_Stock /*extends Application*/ {
     static int daysforAverage;
     static LocalDate dateTrade;
     static double startKapital;
+    static double startKapitalperStock;
     static LocalDate current = LocalDate.now();
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String args[]) throws IOException, JSONException, SQLException {
         API_Stock stockClass = new API_Stock();
-        System.out.println("Geben Sie das Startdatum ein: (Jahr-Monat-Tag)");
+        System.out.println("Geben Sie das Startdatum ein: [Jahr-Monat-Tag]");
         dateTrade = LocalDate.parse(scanner.next());
-        System.out.println("Geben Sie das Startkapital ein: ");
+        System.out.println("Geben Sie das Startkapital ein: [z.B. 100000]");
         startKapital = scanner.nextInt();
         stockClass.readFile();
         for (int i = 0; i < stocks.size(); i++) {
             stock = stocks.get(i);
             System.out.println(stock);
+            //startKapitalperStock = (startKapital / stocks.size());
             if (!check(stock)) {
                 stockClass.readURL();
                 stockClass.getValue(url);
@@ -72,8 +73,8 @@ public class API_Stock /*extends Application*/ {
                 stockClass.Average();
                 stockClass.insertAVG();
                 stockClass.fillDateTradeList();
-                stockClass.trading200();
-                stockClass.buyandHold();
+                //stockClass.trading200();
+                //stockClass.buyandHold();
                 stockClass.trading200With3();
                 stockClass.MinAndMax();
                 stockClass.ListNull();
@@ -137,16 +138,18 @@ public class API_Stock /*extends Application*/ {
     }
 
     // building connection
-    private Connection connection() {
+    private Connection connection() throws SQLException {
         String url = "jdbc:mysql://localhost:3306/api?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; //Pfad einfügen
-        // Connection conn = null;
-        try {
-            /*conn =*/ return DriverManager.getConnection(url, "root", "Destiny@hi!.com");
-        } catch (SQLException e) {
+        Connection conn = null;
+        try
+        {
+            conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
+        }
+        catch (SQLException e)
+        {
             System.out.println(e.getMessage());
         }
-        //return conn;
-        return null;
+        return conn;
     }
 
     // creating table and defining key arguments
@@ -332,13 +335,13 @@ public class API_Stock /*extends Application*/ {
             ResultSet rs = stmt.executeQuery(sql);
             ResultSet rsAVG = stmtAVG.executeQuery(sqlAVG);
 
-            System.out.println("Datum               Close Werte             Durchschnitt");
+            //System.out.println("Datum               Close Werte             Durchschnitt");
             while (rs.next() && rsAVG.next()) {
-                System.out.println(
-                        rs.getString("datum") + "\t \t \t \t" +
-                                rs.getDouble("close") + "\t \t \t \t" +
-                                rsAVG.getDouble("gleitenderDurchschnitt")
-                );
+                //System.out.println(
+                        rs.getString("datum");
+                                rs.getDouble("close");
+                                rsAVG.getDouble("gleitenderDurchschnitt");
+                //);
                 Double avgTemp = rsAVG.getDouble("gleitenderDurchschnitt");
                 dateDB.add(rsAVG.getString("datum"));
                 closeDB.add(rs.getDouble("close"));
@@ -410,29 +413,23 @@ public class API_Stock /*extends Application*/ {
         dateTradeList = new ArrayList<LocalDate>();
         closeTradeList = new ArrayList<Double>();
         averageTradeList = new ArrayList<Double>();
-        splitTradeList = new ArrayList<Double>();
         String sql = "select datum,close from " + stock + " where datum between \'" + dateTrade + "\' AND \'" + current.minusDays(1) + "\' ;";
         String sqlAvg = "select gleitenderDurchschnitt from " + stock + "avg where datum between \'" + dateTrade + "\' " +
                 "AND \'" + current.minusDays(1) + "\';";
-        String sqlSplit = "select splitCoefficient from " + stock + "corrected where datum between \'" + dateTrade + "\' " +
-                "AND \'" + current.minusDays(1) + "\';";
+
         try {
             Connection conn = this.connection();
             Statement smt = conn.createStatement();
             Statement stmtAvg = conn.createStatement();
-            Statement stmtSplit = conn.createStatement();
             ResultSet rs = smt.executeQuery(sql);
             ResultSet rsA = stmtAvg.executeQuery(sqlAvg);
-            ResultSet rsSplit = stmtSplit.executeQuery(sqlSplit);
-            while (rs.next() && rsA.next() && rsSplit.next()) {
+            while (rs.next() && rsA.next()) {
                 rs.getString("datum");
                 rs.getDouble("close");
                 rsA.getDouble("gleitenderDurchschnitt");
-                rsSplit.getDouble("splitCoefficient");
                 dateTradeList.add(LocalDate.parse(rs.getString("datum")));
                 closeTradeList.add(rs.getDouble("close"));
                 averageTradeList.add(rsA.getDouble("gleitenderDurchschnitt"));
-                splitTradeList.add(rsSplit.getDouble("splitCoefficient"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -442,19 +439,17 @@ public class API_Stock /*extends Application*/ {
         String flag = null;
         int anzahl = 0;
         int depot=0;
-        double count = 0;
         String endung = "trade";
         insertStartTrade(endung);
         System.out.println("Trading with _200");
+        Connection conn = null;
+        conn = this.connection();
         for (int i = 0; i < dateTradeList.size(); i++) {
             int rest = 0;
-            flag = null;
-            anzahl = 0;
-            depot = 0;
             String sqlFlag = "select * from " + stock + "trade order by datum desc limit 1";
-            Connection conn = null;
+
             try {
-                conn = this.connection();
+
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sqlFlag);
                 while (rs.next()) {
@@ -465,45 +460,38 @@ public class API_Stock /*extends Application*/ {
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
-            finally {
-                conn.close();
-            }
 
             if (flag.equals("s")) {
                 if (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SATURDAY)
                         || (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SUNDAY))) {
                     if (closeTradeList.get(i) > averageTradeList.get(i)) {
-                        count = 1;
-                        count = count * splitTradeList.get(i);
-                        anzahl = (int) (depot / (closeTradeList.get(i) * count));
+                        anzahl = (int) (depot / (closeTradeList.get(i)));
                         rest = (int) (anzahl * closeTradeList.get(i));
                         depot = (depot - rest);
                         flag = "b";
 
-                        insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot);
-                        System.out.println("bought");
-                        System.out.println(anzahl + " number of stocks");
+                        insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot,conn);
+                        //System.out.println("bought");
+                        //System.out.println(anzahl + " number of stocks");
                     }
                 }
             } else if (flag.equals("b")) {
                 if (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SATURDAY)
                         || (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SUNDAY))) {
                     if (closeTradeList.get(i) < averageTradeList.get(i)) {
-                        count = 1;
-                        count = count * splitTradeList.get(i);
-                        depot = (int) ((anzahl * closeTradeList.get(i)*count) + depot);
+                        depot = (int) ((anzahl * closeTradeList.get(i)) + depot);
                         flag = "s";
                         anzahl = 0;
-                        insertTradeIntoDB((LocalDate) dateTradeList.get(i),stock, endung, flag, anzahl, depot);
-                        System.out.println("sold");
-                        System.out.println(depot + " money in depot");
+                        insertTradeIntoDB((LocalDate) dateTradeList.get(i),stock, endung, flag, anzahl, depot,conn);
+                        //System.out.println("sold");
+                        //System.out.println(depot + " money in depot");
                     }
                 }
-                if(date.get(i) == date.get(date.size()-1))
+                if(dateTradeList.get(i) == dateTradeList.get(dateTradeList.size()-1))
                 {
                     double tempClose = closeValue.get(dateTradeList.size() - 1);
-                    lastSale(tempClose, flag, depot, anzahl, count);
-                    insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot);
+                    lastSale(tempClose, flag, depot, anzahl);
+                    insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot, conn);
                 }
             }
             else
@@ -511,17 +499,17 @@ public class API_Stock /*extends Application*/ {
                 System.out.println("Datenbankfehler");
             }
         }
+        conn.close();
 
         System.out.println(stock);
         depot = (int) (depot - startKapital);
         System.out.println(depot + " money in depot");
         System.out.println(((depot/startKapital)*100.00) + " prozentueller Gewinn");
     }
-    public void insertTradeIntoDB (LocalDate dateTrading, String ticker, String end, String flag, int anzahl, int depot) throws SQLException
+    public void insertTradeIntoDB (LocalDate dateTrading, String ticker, String end, String flag, int anzahl, int depot, Connection conn) throws SQLException
     {
         String insertFlag = "insert into " + stock + end +" (datum, ticker, flag, number, depot) values ('?',?,?,?,?);";
         try {
-            Connection conn = this.connection();
             PreparedStatement ptsmt = conn.prepareStatement(insertFlag);
             insertFlag = "insert into " + stock + end +" (datum, ticker, flag, number, depot) values " +
                     "(\'" + dateTrading + "\','" + ticker + "','" + flag + "'," + anzahl + "," + depot + ");";
@@ -535,19 +523,15 @@ public class API_Stock /*extends Application*/ {
         String flag = null;
         int anzahl = 0;
         int depot = (int) startKapital;
-        double count = 0;
         String endung = "bh";
         insertStartTrade(endung);
         System.out.println("Buy and Hold");
+        Connection conn = null;
+        conn = this.connection();
         for ( int i = 0; i<dateTradeList.size(); i++) {
             int rest = 0;
-            flag = null;
-            anzahl = 0;
-            depot = 0;
             String sqlFlag = "select * from " + stock + "bh order by datum desc limit 1";
-            Connection conn = null;
             try {
-                conn = this.connection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sqlFlag);
                 while (rs.next())
@@ -556,35 +540,31 @@ public class API_Stock /*extends Application*/ {
                     anzahl = rs.getInt("number");
                     depot = rs.getInt("depot");
                 }
-            } catch (SQLException ex) {
+            } catch (SQLException ex)
+            {
                 System.out.println(ex.getMessage());
-            } finally {
-                conn.close();
             }
             if(dateTradeList.get(i) == dateTradeList.get(0))
             {
-                count = 1;
-                count = count * splitTradeList.get(i);
-                anzahl = (int) (depot * count/ (closeTradeList.get(i)));
+                anzahl = (int) (depot / (closeTradeList.get(i)));
                 rest = (int) (anzahl * closeTradeList.get(i));
                 depot = (depot - rest);
                 flag = "b";
-                insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot);
-                System.out.println("bought");
-                System.out.println(anzahl + " number of stocks");
+                insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot,conn);
+                //System.out.println("bought");
+                //System.out.println(anzahl + " number of stocks");
             }
             else if(dateTradeList.get(i) == dateTradeList.get(dateTradeList.size()-1))
             {
-                count = 1;
-                count = count * splitTradeList.get(i);
-                depot = (int) ((anzahl * closeTradeList.get(i)*count) + depot);
+                depot = (int) ((anzahl * closeTradeList.get(i)) + depot);
                 flag = "s";
                 anzahl = 0;
-                insertTradeIntoDB((LocalDate) dateTradeList.get(i),stock,endung,flag,anzahl,depot);
-                System.out.println("sold");
-                System.out.println(depot + " money in depot");
+                insertTradeIntoDB((LocalDate) dateTradeList.get(i),stock,endung,flag,anzahl,depot,conn);
+                //System.out.println("sold");
+                //System.out.println(depot + " money in depot");
             }
         }
+        conn.close();
         System.out.println(stock);
         depot = (int) (depot - startKapital);
         System.out.println(depot + " money in depot");
@@ -594,19 +574,14 @@ public class API_Stock /*extends Application*/ {
         String flag = null;
         int anzahl = 0;
         int depot = 0;
-        double count = 0;
         String endung = "trade3";
         insertStartTrade(endung);
         System.out.println("Trading with _200 plus 3%");
+        Connection conn = this.connection();
         for (int i = 0; i < dateTradeList.size(); i++) {
             int rest = 0;
-            flag = null;
-            anzahl = 0;
-            depot = 0;
             String sqlFlag = "select * from " + stock + "trade3 order by datum desc limit 1";
-            Connection conn = null;
             try {
-                conn = this.connection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sqlFlag);
                 while (rs.next()) {
@@ -617,25 +592,15 @@ public class API_Stock /*extends Application*/ {
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
-            finally {
-                if(conn != null){
-                    conn.close();
-                }
-            }
             if (flag.equals("s")) {
                 if (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SATURDAY)
                         || (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SUNDAY))) {
                     if ((closeTradeList.get(i)*1.03) > averageTradeList.get(i)) {
-                        count = 1;
-                        if(splitValue.get(i) != 1.0)
-                        {
-                            count = count * splitValue.get(i) ;
-                        }
-                        anzahl = (int) (depot / ((closeTradeList.get(i)*1.03) * count));
+                        anzahl = (int) (depot / ((closeTradeList.get(i)*1.03)));
                         rest = (int) (anzahl * (closeTradeList.get(i)*1.03));
                         depot = (depot - rest);
                         flag = "b";
-                        insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot);
+                        insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot,conn);
                         System.out.println("bought");
                         System.out.println(anzahl + " number of stocks");
                     }
@@ -644,40 +609,37 @@ public class API_Stock /*extends Application*/ {
                 if (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SATURDAY)
                         || (!dateTradeList.get(i).getDayOfWeek().equals(DayOfWeek.SUNDAY))) {
                     if ((closeTradeList.get(i)*1.03) < averageTradeList.get(i)) {
-                        count = 1;
-                        if(splitValue.get(i) != 1.0)
-                        {
-                            count = count * splitValue.get(i);
-                        }
-                        depot = (int) ((anzahl * (closeTradeList.get(i)*1.03)*count) + depot);
+                        depot = (int) ((anzahl * (closeTradeList.get(i)*1.03)) + depot);
                         flag = "s";
                         anzahl = 0;
-                        insertTradeIntoDB((LocalDate) dateTradeList.get(i),stock, endung, flag, anzahl, depot);
+                        insertTradeIntoDB((LocalDate) dateTradeList.get(i),stock, endung, flag, anzahl, depot,conn);
                         System.out.println("sold");
                         System.out.println(depot + " money in depot");
                     }
                 }
-                {
-                    double tempClose = closeValue.get(dateTradeList.size() - 1);
-                    lastSale(tempClose, flag, depot, anzahl, count);
-                    insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot);
-                }
+            }
+            else if(dateTradeList.get(i) == dateTradeList.get(dateTradeList.size()-1))
+            {
+                double tempClose = closeValue.get(dateTradeList.size() - 1);
+                lastSale(tempClose, flag, depot, anzahl);
+                insertTradeIntoDB((LocalDate) dateTradeList.get(i), stock, endung, flag, anzahl, depot,conn);
             }
             else
             {
                 System.out.println("Datenbankfehler");
             }
         }
+        conn.close();
         System.out.println(stock);
         depot = (int) (depot - startKapital);
         System.out.println(depot + " money in depot");
         System.out.println(((depot/startKapital)*100.00) + " prozentueller Gewinn");
     }
-    public void lastSale(double core,String flag, int depot, int anzahl, double count)
+    public void lastSale(double core,String flag, int depot, int anzahl)
     {
         if(flag.equals("b"))
         {
-            depot = (int) ((anzahl *core*count) + depot);
+            depot = (int) ((anzahl *core) + depot);
             flag = "s";
             anzahl = 0;
         }
