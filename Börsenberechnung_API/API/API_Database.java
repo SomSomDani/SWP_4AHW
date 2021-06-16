@@ -36,7 +36,7 @@ public class API_Database{
     }
 
     public static void createNewTable(String stock) {
-        String use = "use api;";
+        String use = "use api;";                        // Database auf weniger Tables
         String sql = "CREATE table if not exists " + stock + " (\n"
                 + "datum Date primary key unique," + "close double);";
         String avgsql = "CREATE TABLE IF NOT EXISTS " + stock + "avg (\n"
