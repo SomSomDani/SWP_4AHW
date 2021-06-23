@@ -17,3 +17,4 @@ Was braucht man um das Programm auszuführen?
 Nachdem alle Libraries hinzugefügt sind und man den Key besitzt kann man das Programm ausführen. Man muss nur das MySQL-Passwort und den User ändern.
 Nun können Sie das API auslesen, berechnen und ausgeben lassen. Die Graphen werden die gewünschte Aktie mit korregiertem Close Werten ausgeben.
 
+Nachdem die Daten täglich upgedatet durch ein Artifakt, werden diese durch das Backtesting bei 200er Trading, BuyAndHold und Trading 200 + 3%, bei den jeweiligen Aktien (PTC,ATVI,TSLA,AMZN,IBM) jedoch sind auch (AAPL,ADM,FORD) noch in der Datenbank. Das Backtesting sollte zeigen wenn wir 100.000 Euro in die jeweiligen Aktien investieren, bei welcher Strategie man am meisten Gewinn macht, wenn das Startdatum der 01.01.2010 ist.
