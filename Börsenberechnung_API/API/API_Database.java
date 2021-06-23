@@ -60,7 +60,7 @@ public class API_Database{
         try {
             Connection  conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            for (int i = 1; i < closeValue.size(); i++) {
+            for (int i = 0; i < closeValue.size(); i++) {
                 sql = "INSERT IGNORE INTO " + stock + "(datum, close) VALUES(\"" + date.get(i).toString() + "\"," + closeValue.get(i) + ");";
                 pstmt.execute(sql);
             }
@@ -74,7 +74,7 @@ public class API_Database{
         try {
             Connection  conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            for (int i = 1; i < splitValue.size(); i++) {
+            for (int i = 0; i < splitValue.size(); i++) {
                 sql = "INSERT ignore INTO " + stock + "corrected (datum, close, splitCoefficient) " +
                         "VALUES(\"" + date.get(i).toString() + "\"," + closeValue.get(i) + "," + splitValue.get(i) + ");";
                 pstmt.execute(sql);
@@ -117,7 +117,7 @@ public class API_Database{
         try {
             Connection  conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            for (int i = 0; i < date.size()-1; i++) {
+            for (int i = 0; i < date.size(); i++) {
                 sql = "update " + stock + " set close = " + splitCorrected.get(i) + " where datum = \"" + date.get(i).toString() + "\";";
                 pstmt.execute(sql);
             }

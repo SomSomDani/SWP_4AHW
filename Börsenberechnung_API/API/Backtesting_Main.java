@@ -39,23 +39,24 @@ public class Backtesting_Main {
         BackTesting_Database backtest = new BackTesting_Database();
         Date();
         API.readFile(stocks);
+        System.out.println("Verwendete Aktien: "+ stocks);
         for(int i = 0; i<stocks.size();i++) {
             stock = stocks.get(i);
             startKapitalperStock = (startKapital/stocks.size());
-            startKapitalperStockProMethod = (startKapitalperStock/3);
+            startKapitalperStockProMethod = (startKapitalperStock);
             backtest.createNewTableTrade(stock);
             backtest.fillDateTradeList(stock,dateTrade,current,dateTradeList,closeTradeList,
-                                averageTradeList,startKapitalperStockProMethod/*,dateChartTrade*/);
-            dateChartTrade = backtest.getDateChartTrade();
-            backtest.selecttrade(stock,depotStocktrade,startKapitalperStockProMethod);
-            backtest.selectbh(stock,depotStockbh,startKapitalperStockProMethod);
-            backtest.selecttrade3(stock,depotStocktrade3,startKapitalperStockProMethod);
+                                averageTradeList,startKapitalperStockProMethod);
+            //dateChartTrade = backtest.getDateChartTrade();
+            backtest.selecttrade(stock,depotStocktrade);
+            backtest.selectbh(stock,depotStockbh);
+            backtest.selecttrade3(stock,depotStocktrade3);
         }
-        backtest.calculateTrades(depotStocktrade3,depotStocktrade,depotStockbh,startKapitalperStockProMethod);
+        backtest.calculateTrades(depotStocktrade3,depotStocktrade,depotStockbh,startKapitalperStockProMethod,startKapital);
         //createFile(createChart(dateChartTrade, depotStocktrade, depotStocktrade3));
         //new SwingWrapper<XYChart>(createChart(dateChartTrade, depotStocktrade, depotStocktrade3)).displayChart();
     }
-    /*public static XYChart createChart(List<Date> d, List<Integer>... multipleYAxis) {
+    public static XYChart createChart(List<Date> d, List<Integer>... multipleYAxis) {
         XYChart chart = new XYChartBuilder().title(stock).width(1000).height(600).build();
         chart.setYAxisTitle("Depot");
         chart.setXAxisTitle("Dates");
@@ -75,11 +76,11 @@ public class Backtesting_Main {
         BitmapEncoder.saveBitmap((XYChart) object, "C:\\Users\\danis\\OneDrive\\Desktop\\Aktien_Images\\Backtesting_"
                 + stock + "_Calculating_" + LocalDate.now(), BitmapEncoder.BitmapFormat.JPG);
         return true;
-    }*/
+    }
     public static void Date()
     {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd,MM,yyyy");
-        System.out.println("Geben Sie das Startdatum ein: [Tag,Monat,Jahr]");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        System.out.println("Geben Sie das Startdatum ein: [Tag.Monat.Jahr]");
         String dateString = scanner.next();
         dateTrade = LocalDate.parse(dateString, dateTimeFormatter);
         System.out.println("Geben Sie das Startkapital ein: [z.B. 100000 €/$]");

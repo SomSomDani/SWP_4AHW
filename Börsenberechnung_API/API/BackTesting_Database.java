@@ -60,7 +60,7 @@ public class BackTesting_Database {
     }
     public static void fillDateTradeList(String stock, LocalDate dateTrade, LocalDate current, List<LocalDate> dateTradeList,
                                          List<Double> closeTradeList, List<Double> averageTradeList,
-                                         double startKapital/*, List<Date> dateChartTrade*/) {
+                                         double startKapital) {
         dateTradeList = new ArrayList<LocalDate>();
         closeTradeList = new ArrayList<Double>();
         averageTradeList = new ArrayList<Double>();
@@ -84,7 +84,7 @@ public class BackTesting_Database {
             trading200(stock,dateTrade,dateTradeList,closeTradeList,averageTradeList,startKapital);
             buyandHold(stock,dateTrade,dateTradeList,closeTradeList,averageTradeList,startKapital);
             trading200With3(stock,dateTrade,dateTradeList,closeTradeList,averageTradeList,startKapital);
-            //addingChartTrade(dateTradeList/*,dateChartTrade*/);
+            //addingChartTrade(dateTradeList,dateChartTrade);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -98,7 +98,7 @@ public class BackTesting_Database {
         double prozDepot =0;
         String endung = "trade";
         insertStartTrade(stock, endung, dateTrade, startKapital);
-        System.out.println("Trading with _200");
+        //System.out.println("Trading with _200");
         Connection conn = null;
         conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
         for (int i = 0; i < dateTradeList.size(); i++) {
@@ -156,11 +156,12 @@ public class BackTesting_Database {
             }
         }
         disconnect(conn); //conn.close();
-        System.out.println(stock);
-        depot = (int) (depot - startKapital);
-        System.out.println(depot + " money in depot");
-        prozDepot = ((depot/startKapital)*100.00);
-        System.out.println(f.format(prozDepot) + " prozentuelle Veränderung");
+        //System.out.println(stock);
+        //depot = (int) (depot - startKapital);
+        //System.out.println(depot + " money in depot");
+        //prozDepot = ((depot/startKapital)*100.00);
+        //System.out.println(f.format(prozDepot) + " prozentuelle Veränderung");
+        System.out.println("200er Trading in die Datenbank "+ stock);
     }
     public static void insertTradeIntoDB(String stock, LocalDate dateTrading, String ticker, String end, String flag, int anzahl, int depot, Connection conn) throws SQLException
     {
@@ -180,11 +181,11 @@ public class BackTesting_Database {
         DecimalFormat f = new DecimalFormat("#0.00");
         String flag = null;
         int anzahl = 0;
-        int depot = (int) startKapital;
+        int depot = 0;
         double prozDepot = 0;
         String endung = "bh";
         insertStartTrade(stock, endung, dateTrade, startKapital);
-        System.out.println("Buy and Hold");
+        //System.out.println("Buy and Hold");
         Connection conn = null;
         conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
         for (int i = 0; i<dateTradeList.size(); i++) {
@@ -220,11 +221,12 @@ public class BackTesting_Database {
             }
         }
         disconnect(conn); //conn.close();
-        System.out.println(stock);
-        depot = (int) (depot - startKapital);
-        System.out.println(depot + " money in depot");
-        prozDepot = ((depot/startKapital)*100.00);
-        System.out.println(f.format(prozDepot) + " prozentuelle Veränderung");
+        //System.out.println(stock);
+        //depot = (int) (depot - startKapital);
+        //System.out.println(depot + " money in depot");
+        //prozDepot = ((depot/startKapital)*100.00);
+        //System.out.println(f.format(prozDepot) + " prozentuelle Veränderung");
+        System.out.println("Buy and Hold Trading in die Datenbank "+ stock);
     }
     public static void trading200With3(String stock, LocalDate dateTrade, List<LocalDate> dateTradeList, List<Double> closeTradeList,
                                        List<Double> averageTradeList, double startKapital) throws SQLException {
@@ -235,7 +237,7 @@ public class BackTesting_Database {
         double prozDepot = 0;
         String endung = "trade3";
         insertStartTrade(stock, endung, dateTrade, startKapital);
-        System.out.println("Trading with _200 plus 3%");
+        //System.out.println("Trading with _200 plus 3%");
         Connection conn = null;
         conn =  DriverManager.getConnection(url, "root", "Destiny@hi!.com");
         for (int i = 0; i < dateTradeList.size(); i++) {
@@ -292,13 +294,14 @@ public class BackTesting_Database {
             }
         }
         disconnect(conn); //conn.close();
-        System.out.println(stock);
-        depot = (int) (depot - startKapital);
-        System.out.println(f.format(depot) + " money in depot");
-        prozDepot = ((depot/startKapital)*100.00);
-        System.out.println(f.format(prozDepot) + " prozentuelle Veränderung");
+        //System.out.println(stock);
+        //depot = (int) (depot - startKapital);
+        //System.out.println(f.format(depot) + " money in depot");
+        //prozDepot = ((depot/startKapital)*100.00);
+        //System.out.println(f.format(prozDepot) + " prozentuelle Veränderung");
+        System.out.println("200er + 3% Trading in die Datenbank "+ stock);
     }
-    public static void selecttrade(String stock, List<Integer> depotStockTrade,double startKapital)
+    public static void selecttrade(String stock, List<Integer> depotStockTrade)
     {
         String sql = "select * from " + stock +"trade order by datum desc limit 1";
         Connection conn = null;
@@ -308,14 +311,14 @@ public class BackTesting_Database {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 rs.getInt("depot");
-                depotStockTrade.add(rs.getInt("depot")-(int) startKapital);
+                depotStockTrade.add(rs.getInt("depot"));
             }
             disconnect(conn);
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
     }
-    public static void selectbh(String stock, List<Integer> depotStockbh, double startKapital)
+    public static void selectbh(String stock, List<Integer> depotStockbh)
     {   Connection conn = null;
         String sql = "select * from " + stock +"bh order by datum desc limit 1";
         try {
@@ -324,14 +327,14 @@ public class BackTesting_Database {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 rs.getInt("depot");
-                depotStockbh.add(rs.getInt("depot")-(int) startKapital);
+                depotStockbh.add(rs.getInt("depot"));
             }
             disconnect(conn);
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
     }
-    public static void selecttrade3(String stock, List<Integer> depotStockTrade3, double startKapital)
+    public static void selecttrade3(String stock, List<Integer> depotStockTrade3)
     {
         Connection conn = null;
         String sql = "select * from " + stock +"trade3 order by datum desc limit 1";
@@ -341,14 +344,14 @@ public class BackTesting_Database {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 rs.getInt("depot");
-                depotStockTrade3.add(rs.getInt("depot")-(int) startKapital);
+                depotStockTrade3.add(rs.getInt("depot"));
             }
             disconnect(conn);
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
     }
-    public static void calculateTrades(List<Integer> depotStockTrade3, List<Integer> depotStockTrade, List<Integer> depotStockbh, double startKapital)
+    public static void calculateTrades(List<Integer> depotStockTrade3, List<Integer> depotStockTrade, List<Integer> depotStockbh, double startKapitalperStockProMethod,double startKapital)
     {
         DecimalFormat f = new DecimalFormat("#0.00");
         double alldepoTrade = 0;
@@ -362,28 +365,31 @@ public class BackTesting_Database {
             alldepoTrade = alldepoTrade + depotStockTrade.get(i);
         }
         System.out.println("\n");
-        alldepoTrade = alldepoTrade - startKapital;
+        //alldepoTrade = alldepoTrade - startKapital;
         alldepoTradePer = (alldepoTrade / startKapital) * 100;
-        System.out.println(f.format(alldepoTrade) + "€ Trading 200");
-        System.out.println(f.format(alldepoTradePer) + "% Trading 200 Prozent");
+        System.out.print("Vorher: "+f.format(startKapitalperStockProMethod) +"€ ");
+        System.out.print("Nachher: "+f.format(alldepoTrade) + "€ Trading 200 ");
+        System.out.println("in Prozent: "+f.format(alldepoTradePer) + "% Trading 200 Prozent");
         for(int j = 0; j<depotStockbh.size();j++)
         {
             alldepoBH = alldepoBH + depotStockbh.get(j);
         }
-        alldepoBH = alldepoBH- startKapital;
+        //alldepoBH = alldepoBH - startKapital;
         alldepoBHPer = (alldepoBH/startKapital) * 100;
-        System.out.println(f.format(alldepoBH) + "€ Buy and Hold");
-        System.out.println(f.format(alldepoBHPer) + "% Buy and Hold Prozent");
+        System.out.print("Vorher: "+f.format(startKapitalperStockProMethod) + "€ ");
+        System.out.print("Nachher: "+ f.format(alldepoBH) + "€ Buy and Hold ");
+        System.out.println("in Prozent: "+ f.format(alldepoBHPer) + "% Buy and Hold Prozent");
         for(int k = 0; k<depotStockTrade3.size();k++)
         {
             alldepoTrade3 = alldepoTrade3 + depotStockTrade3.get(k);
         }
-        alldepoTrade3 = alldepoTrade3 - startKapital;
+        //alldepoTrade3 = alldepoTrade3 - startKapital;
         alldepoTrade3Per = (alldepoTrade3 / startKapital) * 100;
-        System.out.println(f.format(alldepoTrade3) + "€ Trading 200 + 3%");
-        System.out.println(f.format(alldepoTrade3Per) + "% Trading 200 + 3% Prozent");
+        System.out.print("Vorher: "+f.format(startKapitalperStockProMethod)+ "€ ");
+        System.out.print("Nachher: "+f.format(alldepoTrade3) + "€ Trading 200 + 3% ");
+        System.out.println("in Prozent: "+f.format(alldepoTrade3Per) + "% Trading 200 + 3% Prozent");
     }
-    public static void addingChartTrade(List<LocalDate> dateTradeList, List<Date> dateChartTrade)
+    /*public static void addingChartTrade(List<LocalDate> dateTradeList, List<Date> dateChartTrade)
     {
 
         BackTesting_Database.dateChartTrade = new ArrayList<>();
@@ -391,7 +397,6 @@ public class BackTesting_Database {
         {
             BackTesting_Database.dateChartTrade.add(Date.valueOf(dates.toString()));
         }
-        System.out.println("stop");
     }
 
     public static ArrayList<Date> getDateChartTrade() {
@@ -400,5 +405,5 @@ public class BackTesting_Database {
 
     public static void setDateChartTrade(ArrayList<Date> dateChartTrade) {
         BackTesting_Database.dateChartTrade = dateChartTrade;
-    }
+    }*/
 }
